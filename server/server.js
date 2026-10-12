@@ -24,14 +24,25 @@ app.use(express.json());
 const distPath = path.join(__dirname, '../dist');
 app.use(express.static(distPath));
 
-// Telegram WebApp initData HMAC-SHA256 validator
 function validateTelegramInitData(initData, botToken) {
-  if (!botToken || !initData) return true; // dev/standalone fallback
+  // If no BOT_TOKEN is configured on server, allow dev/preview mode
+  if (!botToken) return true;
+  // If BOT_TOKEN is configured, initData is mandatory!
+  if (!initData) return false;
 
   try {
     const urlParams = new URLSearchParams(initData);
     const hash = urlParams.get('hash');
+    if (!hash) return false;
     urlParams.delete('hash');
+
+    // Optional check for replay attacks (within 24 hours)
+    const authDate = parseInt(urlParams.get('auth_date') || '0', 10);
+    const currentTime = Math.floor(Date.now() / 1000);
+    if (authDate && (currentTime - authDate > 86400)) {
+      console.warn('Telegram initData has expired (>24h)');
+      return false;
+    }
 
     const dataCheckArr = [];
     urlParams.sort();
@@ -41,7 +52,7 @@ function validateTelegramInitData(initData, botToken) {
     const secretKey = crypto.createHmac('sha256', 'WebAppData').update(botToken).digest();
     const calculatedHash = crypto.createHmac('sha256', secretKey).update(dataCheckString).digest('hex');
 
-    return calculatedHash === hash;
+    return crypto.timingSafeEqual(Buffer.from(calculatedHash), Buffer.from(hash));
   } catch (e) {
     return false;
   }
@@ -117,7 +128,10 @@ app.post('/api/user/profile', (req, res) => {
 
 // 3. Save User Profile
 app.post('/api/user/save', (req, res) => {
-  const { profile } = req.body;
+  const { initData, profile } = req.body;
+  if (BOT_TOKEN && !validateTelegramInitData(initData, BOT_TOKEN)) {
+    return res.status(403).json({ error: 'Invalid Telegram authentication' });
+  }
   if (!profile || !profile.id) {
     return res.status(400).json({ error: 'Missing profile' });
   }

@@ -66,7 +66,10 @@ export const apiClient = {
       await fetch(`${API_BASE}/user/save`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ profile })
+        body: JSON.stringify({
+          initData: window.Telegram?.WebApp?.initData || '',
+          profile
+        })
       });
     } catch (e) {}
     localStorage.setItem('domain_drop_profile', JSON.stringify(profile));

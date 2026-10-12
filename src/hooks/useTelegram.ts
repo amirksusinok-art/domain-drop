@@ -13,6 +13,8 @@ export function useTelegram() {
   const [tg, setTg] = useState<any>(null);
   const [user, setUser] = useState<any>(null);
   const [colorScheme, setColorScheme] = useState<'dark' | 'light'>('dark');
+  const [contentSafeAreaInset, setContentSafeAreaInset] = useState({ top: 0, bottom: 0, left: 0, right: 0 });
+  const [safeAreaInset, setSafeAreaInset] = useState({ top: 0, bottom: 0, left: 0, right: 0 });
 
   useEffect(() => {
     const webApp = window.Telegram?.WebApp;
@@ -42,15 +44,48 @@ export function useTelegram() {
 
       setColorScheme(webApp.colorScheme || 'dark');
 
-      const onThemeChanged = () => {
-        setColorScheme(webApp.colorScheme || 'dark');
+      const applyTheme = () => {
+        const scheme = webApp.colorScheme || 'dark';
+        setColorScheme(scheme);
+        if (scheme === 'dark') {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+        if (webApp.themeParams) {
+          const tp = webApp.themeParams;
+          if (tp.bg_color) document.documentElement.style.setProperty('--tg-theme-bg-color', tp.bg_color);
+          if (tp.text_color) document.documentElement.style.setProperty('--tg-theme-text-color', tp.text_color);
+          if (tp.hint_color) document.documentElement.style.setProperty('--tg-theme-hint-color', tp.hint_color);
+          if (tp.link_color) document.documentElement.style.setProperty('--tg-theme-link-color', tp.link_color);
+          if (tp.button_color) document.documentElement.style.setProperty('--tg-theme-button-color', tp.button_color);
+          if (tp.button_text_color) document.documentElement.style.setProperty('--tg-theme-button-text-color', tp.button_text_color);
+          if (tp.secondary_bg_color) document.documentElement.style.setProperty('--tg-theme-secondary-bg-color', tp.secondary_bg_color);
+          if (tp.header_bg_color) document.documentElement.style.setProperty('--tg-theme-header-bg-color', tp.header_bg_color);
+          if (tp.accent_text_color) document.documentElement.style.setProperty('--tg-theme-accent-text-color', tp.accent_text_color);
+          if (tp.section_bg_color) document.documentElement.style.setProperty('--tg-theme-section-bg-color', tp.section_bg_color);
+          if (tp.section_header_text_color) document.documentElement.style.setProperty('--tg-theme-section-header-text-color', tp.section_header_text_color);
+          if (tp.subtitle_text_color) document.documentElement.style.setProperty('--tg-theme-subtitle-text-color', tp.subtitle_text_color);
+          if (tp.destructive_text_color) document.documentElement.style.setProperty('--tg-theme-destructive-text-color', tp.destructive_text_color);
+        }
       };
+      applyTheme();
+      webApp.onEvent?.('themeChanged', applyTheme);
+
       const updateSafeAreas = () => {
         if (webApp.contentSafeAreaInset) {
+          setContentSafeAreaInset(webApp.contentSafeAreaInset);
           document.documentElement.style.setProperty('--tg-content-safe-area-inset-top', `${webApp.contentSafeAreaInset.top}px`);
           document.documentElement.style.setProperty('--tg-content-safe-area-inset-bottom', `${webApp.contentSafeAreaInset.bottom}px`);
           document.documentElement.style.setProperty('--tg-content-safe-area-inset-left', `${webApp.contentSafeAreaInset.left}px`);
           document.documentElement.style.setProperty('--tg-content-safe-area-inset-right', `${webApp.contentSafeAreaInset.right}px`);
+        }
+        if (webApp.safeAreaInset) {
+          setSafeAreaInset(webApp.safeAreaInset);
+          document.documentElement.style.setProperty('--tg-safe-area-inset-top', `${webApp.safeAreaInset.top}px`);
+          document.documentElement.style.setProperty('--tg-safe-area-inset-bottom', `${webApp.safeAreaInset.bottom}px`);
+          document.documentElement.style.setProperty('--tg-safe-area-inset-left', `${webApp.safeAreaInset.left}px`);
+          document.documentElement.style.setProperty('--tg-safe-area-inset-right', `${webApp.safeAreaInset.right}px`);
         }
       };
       updateSafeAreas();
@@ -58,7 +93,7 @@ export function useTelegram() {
       webApp.onEvent?.('safeAreaChanged', updateSafeAreas);
 
       return () => {
-        webApp.offEvent?.('themeChanged', onThemeChanged);
+        webApp.offEvent?.('themeChanged', applyTheme);
         webApp.offEvent?.('contentSafeAreaChanged', updateSafeAreas);
         webApp.offEvent?.('safeAreaChanged', updateSafeAreas);
       };
@@ -124,6 +159,8 @@ export function useTelegram() {
     tg,
     user,
     colorScheme,
+    contentSafeAreaInset,
+    safeAreaInset,
     initData: window.Telegram?.WebApp?.initData || '',
     impactOccurred,
     notificationOccurred,
