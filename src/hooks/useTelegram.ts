@@ -45,10 +45,22 @@ export function useTelegram() {
       const onThemeChanged = () => {
         setColorScheme(webApp.colorScheme || 'dark');
       };
-      webApp.onEvent?.('themeChanged', onThemeChanged);
+      const updateSafeAreas = () => {
+        if (webApp.contentSafeAreaInset) {
+          document.documentElement.style.setProperty('--tg-content-safe-area-inset-top', `${webApp.contentSafeAreaInset.top}px`);
+          document.documentElement.style.setProperty('--tg-content-safe-area-inset-bottom', `${webApp.contentSafeAreaInset.bottom}px`);
+          document.documentElement.style.setProperty('--tg-content-safe-area-inset-left', `${webApp.contentSafeAreaInset.left}px`);
+          document.documentElement.style.setProperty('--tg-content-safe-area-inset-right', `${webApp.contentSafeAreaInset.right}px`);
+        }
+      };
+      updateSafeAreas();
+      webApp.onEvent?.('contentSafeAreaChanged', updateSafeAreas);
+      webApp.onEvent?.('safeAreaChanged', updateSafeAreas);
 
       return () => {
         webApp.offEvent?.('themeChanged', onThemeChanged);
+        webApp.offEvent?.('contentSafeAreaChanged', updateSafeAreas);
+        webApp.offEvent?.('safeAreaChanged', updateSafeAreas);
       };
     } else {
       // Dev mode fallback

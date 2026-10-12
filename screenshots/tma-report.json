@@ -1,0 +1,19 @@
+{
+  "url": "https://domain-drop.onrender.com",
+  "timestamp": "2026-10-12T15:46:36.942Z",
+  "viewport": {
+    "width": 393,
+    "height": 659
+  },
+  "checks": {
+    "sdkDetected": true,
+    "horizontalOverflow": false,
+    "cssVarsBound": true,
+    "consoleErrors": [],
+    "hapticsEmitted": []
+  },
+  "screenshots": {
+    "dark": "C:\\Users\\Пользователь\\Desktop\\miniappps\\screenshots\\tma-dark.png",
+    "light": "C:\\Users\\Пользователь\\Desktop\\miniappps\\screenshots\\tma-light.png"
+  }
+}
