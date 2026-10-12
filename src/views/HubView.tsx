@@ -1,176 +1,231 @@
-import React from 'react';
-import { UserProfile, DomainItem, ScannerTask } from '../types/domain';
+import React, { useState } from 'react';
+import { UserProfile, Pack, DomainItem } from '../types/domain';
+import { PACKS_CATALOG } from '../data/initialCatalog';
 import { DomainCard } from '../components/DomainCard';
-import { Compass, Gift, Sparkles, Trophy, ArrowRight, Zap, Layers, CheckCircle2 } from 'lucide-react';
 
 interface HubViewProps {
   profile: UserProfile;
-  activeTask?: ScannerTask;
-  onNavigateTab: (tab: 'scanner' | 'collection' | 'workshop') => void;
+  onOpenPack: (pack: Pack) => void;
   onSelectCard: (item: DomainItem) => void;
   onClaimDaily: () => void;
-  canClaimDaily: boolean;
-  onHaptic?: (type: 'light' | 'medium') => void;
+  onNavigateTab: (tab: 'packs' | 'inventory' | 'market' | 'profile') => void;
 }
 
 export const HubView: React.FC<HubViewProps> = ({
   profile,
-  activeTask,
-  onNavigateTab,
+  onOpenPack,
   onSelectCard,
   onClaimDaily,
-  canClaimDaily,
-  onHaptic
+  onNavigateTab
 }) => {
-  const recentItems = [...profile.items].reverse().slice(0, 3);
-  const totalCatalogNames = 35;
-  const collectionPercentage = Math.min(100, Math.round((profile.items.length / totalCatalogNames) * 100));
+  const [dailyClaimed, setDailyClaimed] = useState(false);
+
+  // Check if daily was claimed today
+  const lastClaim = profile.lastDailyClaim ? new Date(profile.lastDailyClaim) : null;
+  const isToday = lastClaim && new Date().toDateString() === lastClaim.toDateString();
+
+  const handleClaim = () => {
+    if (isToday || dailyClaimed) return;
+    setDailyClaimed(true);
+    onClaimDaily();
+  };
+
+  const freePack = PACKS_CATALOG.find(p => p.id === 'pack_free') || PACKS_CATALOG[0];
+  const basicPack = PACKS_CATALOG.find(p => p.id === 'pack_basic') || PACKS_CATALOG[1];
+  const themedPack = PACKS_CATALOG.find(p => p.id === 'pack_themed') || PACKS_CATALOG[2];
+
+  const recentItems = (profile.items || []).slice(0, 4);
 
   return (
-    <div className="space-y-4 pb-20 animate-fadeIn">
-      {/* Daily Bonus Banner */}
-      <div className="rounded-2xl p-4 bg-gradient-to-r from-slate-900 to-slate-850 border border-slate-800 flex items-center justify-between gap-3 shadow-lg">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-300">
-            <Gift className="w-5 h-5" />
+    <div className="space-y-4 pb-20">
+      {/* Hero Welcome / Daily Rewards */}
+      <div className="bg-app-surface border border-app-border rounded-3xl p-4.5 shadow-sm relative overflow-hidden">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-500/20 to-yellow-600/30 border border-amber-500/30 flex items-center justify-center text-2xl">
+              🎁
+            </div>
+            <div>
+              <h2 className="text-sm font-bold text-app-text">Ежедневный доход</h2>
+              <p className="text-xs text-app-muted">
+                Серия: <span className="text-amber-400 font-bold">{profile.claimedDailyStreak || 1} дн.</span> (+50 BC)
+              </p>
+            </div>
           </div>
-          <div>
-            <h4 className="text-xs font-bold text-slate-100">Ежедневный вход</h4>
-            <p className="text-[11px] text-slate-400">
-              Серия: <span className="text-amber-400 font-mono font-bold">{profile.claimedDailyStreak} дн.</span> (+10 DC)
+
+          <button
+            onClick={handleClaim}
+            disabled={isToday || dailyClaimed}
+            className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
+              isToday || dailyClaimed
+                ? 'bg-app-surface-subtle text-app-muted border border-app-border cursor-not-allowed'
+                : 'bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-black font-bold active:scale-95 shadow-md shadow-amber-500/20'
+            }`}
+          >
+            {isToday || dailyClaimed ? 'Получено ✓' : 'Забрать 50 BC'}
+          </button>
+        </div>
+      </div>
+
+      {/* Free Pack & Quick Open Banner */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {/* Free Pack Tile */}
+        <div className="bg-app-surface border border-sky-500/30 rounded-3xl p-4 flex items-center justify-between gap-3 relative overflow-hidden group">
+          <div className="space-y-1">
+            <div className="flex items-center gap-1.5">
+              <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-sky-500/20 text-sky-400 border border-sky-500/30">
+                0 BC
+              </span>
+              <span className="text-xs font-bold text-app-text">Бесплатный набор</span>
+            </div>
+            <p className="text-[11px] text-app-muted">
+              Шанс получить домены .com, .org, .net
             </p>
           </div>
-        </div>
 
-        <button
-          onClick={() => {
-            onHaptic?.('medium');
-            onClaimDaily();
-          }}
-          disabled={!canClaimDaily}
-          className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
-            canClaimDaily
-              ? 'bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 hover:brightness-110 shadow-[0_0_12px_rgba(245,158,11,0.3)] active:scale-95'
-              : 'bg-slate-800 text-slate-500 cursor-not-allowed'
-          }`}
-        >
-          {canClaimDaily ? 'Забрать 10 DC' : 'Получено'}
-        </button>
-      </div>
-
-      {/* Main Scanner Hero Action */}
-      <div className="relative overflow-hidden rounded-3xl p-5 bg-gradient-to-b from-[#141b2a] to-[#0d121c] border border-cyan-500/30 shadow-[0_0_25px_rgba(6,182,212,0.15)]">
-        <div className="absolute top-0 right-0 -mr-6 -mt-6 w-32 h-32 rounded-full bg-cyan-500/10 blur-2xl pointer-events-none" />
-
-        <div className="flex items-center gap-2 mb-2">
-          <span className="text-[10px] font-mono uppercase tracking-wider text-cyan-400 bg-cyan-950/80 px-2 py-0.5 rounded-md border border-cyan-500/30">
-            Domain Scanner
-          </span>
-          <span className="text-[10px] font-mono text-slate-400">
-            Активное испытание
-          </span>
-        </div>
-
-        <h3 className="text-lg font-bold text-slate-100 font-sans">
-          {activeTask ? activeTask.title : 'Исследование редких имён'}
-        </h3>
-        <p className="text-xs text-slate-300 mt-1 leading-relaxed">
-          {activeTask
-            ? activeTask.description
-            : 'Решайте логические задания, ищите палиндромы и открывайте редкие доменные имена.'}
-        </p>
-
-        {activeTask && (
-          <div className="mt-3 flex items-center gap-3 text-xs font-mono">
-            <span className="text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">
-              +{activeTask.rewardCoins} DC
-            </span>
-            <span className="text-cyan-400 bg-cyan-500/10 px-2 py-0.5 rounded border border-cyan-500/20">
-              +{activeTask.rewardXp} XP
-            </span>
-            <span className="text-slate-400">
-              Награда: <strong className="text-slate-200">{activeTask.rewardItemPreview.name}</strong>
-            </span>
-          </div>
-        )}
-
-        <button
-          onClick={() => {
-            onHaptic?.('medium');
-            onNavigateTab('scanner');
-          }}
-          className="mt-4 w-full py-3 px-4 rounded-xl font-bold text-xs bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(6,182,212,0.3)] active:scale-[0.98] transition-all"
-        >
-          <Compass className="w-4 h-4" />
-          <span>Перейти к сканеру имён</span>
-          <ArrowRight className="w-3.5 h-3.5 ml-auto" />
-        </button>
-      </div>
-
-      {/* Progress & Stats Cards Grid */}
-      <div className="grid grid-cols-2 gap-3">
-        {/* Collection Progress */}
-        <div
-          onClick={() => {
-            onHaptic?.('light');
-            onNavigateTab('collection');
-          }}
-          className="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 hover:border-slate-700 transition-colors cursor-pointer"
-        >
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-[11px] font-medium text-slate-400">Коллекция</span>
-            <Layers className="w-4 h-4 text-cyan-400" />
-          </div>
-          <div className="text-xl font-mono font-bold text-slate-100">
-            {profile.items.length} <span className="text-xs text-slate-500 font-normal">/ {totalCatalogNames}</span>
-          </div>
-          <div className="w-full h-1.5 rounded-full bg-slate-800 mt-2 overflow-hidden">
-            <div
-              className="h-full bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full"
-              style={{ width: `${collectionPercentage}%` }}
-            />
-          </div>
-          <span className="text-[10px] text-slate-500 font-mono mt-1 block">
-            {collectionPercentage}% собрано
-          </span>
-        </div>
-
-        {/* Solved Tasks Counter */}
-        <div
-          onClick={() => {
-            onHaptic?.('light');
-            onNavigateTab('scanner');
-          }}
-          className="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 hover:border-slate-700 transition-colors cursor-pointer"
-        >
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-[11px] font-medium text-slate-400">Заданий решено</span>
-            <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-          </div>
-          <div className="text-xl font-mono font-bold text-slate-100">
-            {profile.stats.tasksSolved}
-          </div>
-          <span className="text-[10px] text-emerald-400/80 font-mono mt-2 block">
-            +{profile.stats.tasksSolved * 10} DC заработано
-          </span>
-        </div>
-      </div>
-
-      {/* Recent Discovered Items */}
-      <div>
-        <div className="flex items-center justify-between mb-3 px-1">
-          <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider font-mono">
-            Последние находки ({profile.items.length})
-          </h4>
           <button
-            onClick={() => {
-              onHaptic?.('light');
-              onNavigateTab('collection');
-            }}
-            className="text-xs text-cyan-400 hover:underline flex items-center gap-1"
+            onClick={() => onOpenPack(freePack)}
+            className="px-3.5 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-white font-bold text-xs active:scale-95 transition-all shadow-md flex-shrink-0"
           >
-            <span>Все</span>
-            <ArrowRight className="w-3 h-3" />
+            Открыть 🎁
+          </button>
+        </div>
+
+        {/* Basic Pack Tile */}
+        <div className="bg-app-surface border border-app-border rounded-3xl p-4 flex items-center justify-between gap-3 relative overflow-hidden">
+          <div className="space-y-1">
+            <div className="flex items-center gap-1.5">
+              <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                100 BC
+              </span>
+              <span className="text-xs font-bold text-app-text">Basic Pack</span>
+            </div>
+            <p className="text-[11px] text-app-muted">
+              Шанс на nova.com (Unique) и telegram.com
+            </p>
+          </div>
+
+          <button
+            onClick={() => onOpenPack(basicPack)}
+            className="px-3.5 py-2 rounded-xl bg-app-surface-subtle hover:bg-app-border border border-app-border text-app-text font-bold text-xs active:scale-95 transition-all flex-shrink-0"
+          >
+            100 BC 📦
+          </button>
+        </div>
+      </div>
+
+      {/* Featured Packs Quick View */}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between px-1">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-app-muted">
+            Популярные наборы
+          </h3>
+          <button
+            onClick={() => onNavigateTab('packs')}
+            className="text-xs text-sky-400 hover:text-sky-300 font-medium"
+          >
+            Все наборы →
+          </button>
+        </div>
+
+        <div className="grid grid-cols-2 gap-2.5">
+          <div
+            onClick={() => onOpenPack(themedPack)}
+            className="bg-app-surface border border-purple-500/30 hover:border-purple-400/50 rounded-2xl p-3.5 cursor-pointer transition-all active:scale-95 group"
+          >
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-lg">⚡</span>
+              <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-300">
+                300 BC
+              </span>
+            </div>
+            <div className="text-xs font-bold text-app-text group-hover:text-purple-300 transition-colors">
+              Themed Pack
+            </div>
+            <div className="text-[10px] text-app-muted mt-0.5">
+              Зоны .io, .dev, .gg, .app
+            </div>
+          </div>
+
+          <div
+            onClick={() => onNavigateTab('market')}
+            className="bg-app-surface border border-app-border hover:border-sky-500/50 rounded-2xl p-3.5 cursor-pointer transition-all active:scale-95 group"
+          >
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-lg">⚖️</span>
+              <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-sky-500/20 text-sky-300">
+                Биржа
+              </span>
+            </div>
+            <div className="text-xs font-bold text-app-text group-hover:text-sky-300 transition-colors">
+              Рынок & Аукционы
+            </div>
+            <div className="text-[10px] text-app-muted mt-0.5">
+              Торгуйте редкими лотами за BC
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Daily Quests */}
+      <div className="bg-app-surface border border-app-border rounded-3xl p-4 space-y-3">
+        <div className="flex items-center justify-between">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-app-muted">
+            Ежедневные задания (+100 BC бонус)
+          </h3>
+          <span className="text-[11px] font-mono text-amber-400 font-bold">
+            1/3 готово
+          </span>
+        </div>
+
+        <div className="space-y-2">
+          <div className="flex items-center justify-between p-2.5 rounded-xl bg-app-surface-subtle border border-app-border/60">
+            <div className="space-y-0.5">
+              <div className="text-xs font-medium text-app-text">Открыть бесплатный набор</div>
+              <div className="text-[10px] text-app-muted">+20 BC</div>
+            </div>
+            <span className="text-[11px] text-emerald-400 font-semibold">✓ Готово</span>
+          </div>
+
+          <div className="flex items-center justify-between p-2.5 rounded-xl bg-app-surface-subtle border border-app-border/60">
+            <div className="space-y-0.5">
+              <div className="text-xs font-medium text-app-text">Выставить домен на биржу</div>
+              <div className="text-[10px] text-app-muted">+25 BC</div>
+            </div>
+            <button
+              onClick={() => onNavigateTab('market')}
+              className="text-xs px-2.5 py-1 rounded-lg bg-app-border text-app-text hover:bg-sky-500/20 hover:text-sky-300 font-medium transition-colors"
+            >
+              Перейти
+            </button>
+          </div>
+
+          <div className="flex items-center justify-between p-2.5 rounded-xl bg-app-surface-subtle border border-app-border/60">
+            <div className="space-y-0.5">
+              <div className="text-xs font-medium text-app-text">Совершить сделку на рынке</div>
+              <div className="text-[10px] text-app-muted">+40 BC</div>
+            </div>
+            <button
+              onClick={() => onNavigateTab('market')}
+              className="text-xs px-2.5 py-1 rounded-lg bg-app-border text-app-text hover:bg-sky-500/20 hover:text-sky-300 font-medium transition-colors"
+            >
+              Купить
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Recent Items in Inventory */}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between px-1">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-app-muted">
+            Ваша коллекция ({profile.items.length})
+          </h3>
+          <button
+            onClick={() => onNavigateTab('inventory')}
+            className="text-xs text-sky-400 hover:text-sky-300 font-medium"
+          >
+            Смотреть все →
           </button>
         </div>
 
@@ -178,25 +233,15 @@ export const HubView: React.FC<HubViewProps> = ({
           <div className="grid grid-cols-2 gap-2.5">
             {recentItems.map((item) => (
               <DomainCard
-                key={item.instanceId}
+                key={item.id}
                 item={item}
-                size="sm"
-                onClick={() => {
-                  onHaptic?.('light');
-                  onSelectCard(item);
-                }}
+                onClick={() => onSelectCard(item)}
               />
             ))}
           </div>
         ) : (
-          <div className="p-6 rounded-2xl bg-slate-900/60 border border-dashed border-slate-800 text-center">
-            <Sparkles className="w-6 h-6 text-slate-600 mx-auto mb-2" />
-            <p className="text-xs text-slate-400">
-              Ваша коллекция пока пуста.
-            </p>
-            <p className="text-[11px] text-slate-500 mt-1">
-              Пройдите первое логическое задание в сканере!
-            </p>
+          <div className="text-center py-8 bg-app-surface border border-app-border rounded-2xl text-app-muted text-xs">
+            У вас пока нет доменов. Откройте бесплатный набор!
           </div>
         )}
       </div>

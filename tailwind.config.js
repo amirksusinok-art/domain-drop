@@ -8,6 +8,16 @@ export default {
   theme: {
     extend: {
       colors: {
+        app: {
+          bg: 'var(--theme-bg)',
+          surface: 'var(--theme-surface)',
+          'surface-subtle': 'var(--theme-surface-subtle)',
+          border: 'var(--theme-border)',
+          'border-highlight': 'var(--theme-border-highlight)',
+          accent: 'var(--theme-accent)',
+          text: 'var(--theme-text)',
+          muted: 'var(--theme-text-muted)'
+        },
         graphite: {
           950: '#0a0d12',
           900: '#10141d',
@@ -46,8 +56,8 @@ export default {
         }
       },
       fontFamily: {
-        mono: ['JetBrains Mono', 'Fira Code', 'Courier New', 'monospace'],
-        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif']
+        mono: ['JetBrains Mono', 'SF Mono', 'Fira Code', 'Courier New', 'monospace'],
+        sans: ['-apple-system', 'BlinkMacSystemFont', 'Inter', 'Segoe UI', 'Roboto', 'sans-serif']
       },
       animation: {
         'scan': 'scan 2s linear infinite',
@@ -58,11 +68,11 @@ export default {
       keyframes: {
         scan: {
           '0%': { transform: 'translateY(-100%)' },
-          '100%': { transform: 'translateY(1000%)' }
+          '100%': { transform: 'translateY(100%)' }
         },
         pulseGlow: {
-          '0%, 100%': { opacity: '0.4', transform: 'scale(1)' },
-          '50%': { opacity: '0.8', transform: 'scale(1.02)' }
+          '0%, 100%': { opacity: '0.4' },
+          '50%': { opacity: '0.85' }
         },
         shimmer: {
           '0%': { backgroundPosition: '-200% 0' },
@@ -70,7 +80,7 @@ export default {
         },
         float: {
           '0%, 100%': { transform: 'translateY(0px)' },
-          '50%': { transform: 'translateY(-6px)' }
+          '50%': { transform: 'translateY(-4px)' }
         }
       }
     },

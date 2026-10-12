@@ -1,88 +1,82 @@
 import React from 'react';
 import { UserProfile } from '../types/domain';
-import { Coins, Volume2, VolumeX, Smartphone, Award } from 'lucide-react';
 
 interface HeaderProps {
   profile: UserProfile;
   soundEnabled: boolean;
-  hapticsEnabled: boolean;
   onToggleSound: () => void;
-  onToggleHaptics: () => void;
-  onHaptic?: () => void;
+  onOpenSettings?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
   profile,
   soundEnabled,
-  hapticsEnabled,
   onToggleSound,
-  onToggleHaptics,
-  onHaptic
+  onOpenSettings
 }) => {
-  const xpPercentage = Math.min(100, Math.round((profile.xp / profile.xpToNextLevel) * 100));
+  const xpPercent = Math.min(100, Math.round((profile.xp / profile.xpToNextLevel) * 100));
 
   return (
-    <header className="sticky top-0 z-30 bg-[#0b0e14]/90 backdrop-blur-md border-b border-slate-800/80 px-4 py-3 max-w-md mx-auto">
+    <header className="sticky top-0 z-30 px-4 py-3 bg-app-surface/90 backdrop-blur-md border-b border-app-border">
       <div className="flex items-center justify-between gap-3">
-        {/* User & Level */}
-        <div className="flex items-center gap-2.5">
-          <div className="relative">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-700 flex items-center justify-center font-bold text-white shadow-[0_0_10px_rgba(6,182,212,0.3)]">
-              {profile.firstName?.[0] || 'D'}
+        {/* User Badge & XP */}
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="relative flex-shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-500 to-indigo-600 flex items-center justify-center text-white font-bold text-base shadow-sm ring-1 ring-white/10">
+              {profile.firstName ? profile.firstName.charAt(0).toUpperCase() : 'D'}
             </div>
-            <span className="absolute -bottom-1 -right-1 bg-amber-400 text-slate-950 font-mono font-bold text-[9px] px-1 rounded-full border border-slate-900">
+            <div className="absolute -bottom-1 -right-1 px-1.5 py-0.2 bg-app-bg text-[10px] font-mono font-bold text-sky-400 rounded-md border border-app-border">
               L{profile.level}
-            </span>
+            </div>
           </div>
 
-          <div>
+          <div className="min-w-0 flex-1">
             <div className="flex items-center gap-1.5">
-              <span className="text-xs font-bold text-slate-100 truncate max-w-[110px]">
-                {profile.firstName || profile.username || 'Коллекционер'}
+              <span className="font-semibold text-xs tracking-tight text-app-text truncate">
+                {profile.firstName}
+              </span>
+              <span className="text-[10px] font-mono text-app-muted">
+                @{profile.username}
               </span>
             </div>
-            {/* XP mini bar */}
-            <div className="flex items-center gap-1.5 mt-0.5">
-              <div className="w-16 h-1.5 rounded-full bg-slate-800 overflow-hidden">
+
+            {/* XP Bar */}
+            <div className="flex items-center gap-1.5 mt-1">
+              <div className="w-20 sm:w-28 h-1.5 bg-app-bg rounded-full overflow-hidden border border-app-border/60">
                 <div
-                  className="h-full bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full transition-all duration-300"
-                  style={{ width: `${xpPercentage}%` }}
+                  className="h-full bg-gradient-to-r from-sky-400 to-cyan-300 transition-all duration-300 rounded-full"
+                  style={{ width: `${xpPercent}%` }}
                 />
               </div>
-              <span className="text-[9px] font-mono text-slate-400">
+              <span className="text-[9px] font-mono text-app-muted">
                 {profile.xp}/{profile.xpToNextLevel}
               </span>
             </div>
           </div>
         </div>
 
-        {/* Currency & Quick Settings */}
-        <div className="flex items-center gap-2">
-          {/* DC Coins balance */}
-          <div className="flex items-center gap-1.5 bg-slate-900 border border-amber-400/30 px-2.5 py-1.5 rounded-xl shadow-[0_0_10px_rgba(245,158,11,0.15)]">
-            <div className="w-4 h-4 rounded-full bg-amber-400 flex items-center justify-center font-bold text-[9px] text-slate-950">
-              Ð
+        {/* Currency & Quick Controls */}
+        <div className="flex items-center gap-2 flex-shrink-0">
+          {/* BC Coins Pill */}
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-app-surface-subtle border border-app-border text-app-text font-mono text-xs shadow-inner">
+            <div className="w-4 h-4 rounded-full bg-gradient-to-br from-amber-400 to-yellow-600 flex items-center justify-center text-[10px] font-bold text-black shadow-sm">
+              ₿
             </div>
-            <span className="font-mono font-bold text-xs text-amber-300">
-              {profile.coins}
+            <span className="font-bold text-amber-300 tracking-tight">
+              {profile.coins.toLocaleString()}
             </span>
-            <span className="text-[10px] text-amber-400/70 font-mono">DC</span>
+            <span className="text-[10px] text-app-muted font-sans font-semibold">
+              BC
+            </span>
           </div>
 
-          {/* Quick Sound Toggle */}
+          {/* Sound Toggle */}
           <button
-            onClick={() => {
-              onHaptic?.();
-              onToggleSound();
-            }}
-            className="p-1.5 rounded-lg bg-slate-800/80 border border-slate-700/60 text-slate-300 hover:text-white"
-            title="Звук"
+            onClick={onToggleSound}
+            title={soundEnabled ? 'Звук включен' : 'Звук выключен'}
+            className="w-8 h-8 rounded-xl bg-app-surface-subtle border border-app-border flex items-center justify-center text-app-muted hover:text-app-text active:scale-95 transition-all text-xs"
           >
-            {soundEnabled ? (
-              <Volume2 className="w-4 h-4 text-cyan-400" />
-            ) : (
-              <VolumeX className="w-4 h-4 text-slate-500" />
-            )}
+            {soundEnabled ? '🔊' : '🔇'}
           </button>
         </div>
       </div>
