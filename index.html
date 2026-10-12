@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ru" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <title>DomainDrop — Name Collector & Logic Quest</title>
+    <!-- Telegram WebApp SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+    <style>
+      /* Fallback Telegram variables */
+      :root {
+        --tg-theme-bg-color: #0b0e14;
+        --tg-theme-text-color: #f3f4f6;
+        --tg-theme-hint-color: #94a3b8;
+        --tg-theme-link-color: #38bdf8;
+        --tg-theme-button-color: #0284c7;
+        --tg-theme-button-text-color: #ffffff;
+        --tg-theme-secondary-bg-color: #111827;
+        --tg-theme-header-bg-color: #0b0e14;
+        --tg-theme-accent-text-color: #38bdf8;
+        --tg-theme-section-bg-color: #161f30;
+        --tg-theme-section-header-text-color: #64748b;
+        --tg-theme-subtitle-text-color: #94a3b8;
+        --tg-theme-destructive-text-color: #ef4444;
+      }
+    </style>
+  </head>
+  <body class="bg-[#0b0e14] text-slate-100 antialiased overflow-x-hidden select-none">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
