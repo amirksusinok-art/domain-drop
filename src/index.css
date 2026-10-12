@@ -8,12 +8,13 @@
 }
 
 body {
-  padding-top: var(--tg-content-safe-area-inset-top);
-  padding-bottom: var(--tg-content-safe-area-inset-bottom);
+  padding-top: var(--tg-content-safe-area-inset-top, env(safe-area-inset-top, 0px));
+  padding-bottom: var(--tg-content-safe-area-inset-bottom, env(safe-area-inset-bottom, 0px));
   user-select: none;
   -webkit-user-select: none;
   touch-action: pan-y;
-  background-color: #0b0e14;
+  background-color: var(--tg-theme-bg-color, #0b0e14);
+  color: var(--tg-theme-text-color, #f3f4f6);
 }
 
 /* Custom scrollbar hiding */

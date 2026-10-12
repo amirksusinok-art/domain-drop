@@ -52,11 +52,11 @@ export function App() {
       setProfile((prev) => {
         if (!prev) return prev;
         const next = updater(prev);
-        apiClient.saveProfile(next);
+        apiClient.saveProfile(next, initData);
         return next;
       });
     },
-    []
+    [initData]
   );
 
   // Check XP level up

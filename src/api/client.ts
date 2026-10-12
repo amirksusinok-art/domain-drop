@@ -61,13 +61,13 @@ export const apiClient = {
     return starterProfile;
   },
 
-  async saveProfile(profile: UserProfile): Promise<void> {
+  async saveProfile(profile: UserProfile, initData?: string): Promise<void> {
     try {
       await fetch(`${API_BASE}/user/save`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          initData: window.Telegram?.WebApp?.initData || '',
+          initData: initData || window.Telegram?.WebApp?.initData || '',
           profile
         })
       });

@@ -28,6 +28,21 @@ export default {
           pink: '#ec4899',
           emerald: '#10b981',
           amber: '#f59e0b'
+        },
+        tg: {
+          bg: 'var(--tg-theme-bg-color, #0b0e14)',
+          text: 'var(--tg-theme-text-color, #f3f4f6)',
+          hint: 'var(--tg-theme-hint-color, #94a3b8)',
+          link: 'var(--tg-theme-link-color, #38bdf8)',
+          button: 'var(--tg-theme-button-color, #0284c7)',
+          buttonText: 'var(--tg-theme-button-text-color, #ffffff)',
+          secondaryBg: 'var(--tg-theme-secondary-bg-color, #111827)',
+          headerBg: 'var(--tg-theme-header-bg-color, #0b0e14)',
+          accentText: 'var(--tg-theme-accent-text-color, #38bdf8)',
+          sectionBg: 'var(--tg-theme-section-bg-color, #161f30)',
+          sectionHeader: 'var(--tg-theme-section-header-text-color, #64748b)',
+          subtitle: 'var(--tg-theme-subtitle-text-color, #94a3b8)',
+          destructive: 'var(--tg-theme-destructive-text-color, #ef4444)'
         }
       },
       fontFamily: {

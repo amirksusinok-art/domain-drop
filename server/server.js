@@ -52,6 +52,7 @@ function validateTelegramInitData(initData, botToken) {
     const secretKey = crypto.createHmac('sha256', 'WebAppData').update(botToken).digest();
     const calculatedHash = crypto.createHmac('sha256', secretKey).update(dataCheckString).digest('hex');
 
+    if (calculatedHash.length !== hash.length) return false;
     return crypto.timingSafeEqual(Buffer.from(calculatedHash), Buffer.from(hash));
   } catch (e) {
     return false;
