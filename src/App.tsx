@@ -8,7 +8,7 @@ import { Navigation, TabType } from './components/Navigation';
 import { ReelModal } from './components/ReelModal';
 import { CardDetailsModal } from './components/CardDetailsModal';
 import { HubView } from './views/HubView';
-import { PacksView } from './views/PacksView';
+import { SitesView } from './views/SitesView';
 import { InventoryView } from './views/InventoryView';
 import { MarketView } from './views/MarketView';
 import { ProfileView } from './views/ProfileView';
@@ -19,9 +19,9 @@ export function App() {
   const audio = useAudio(profile?.settings?.sound ?? true);
 
   const [loading, setLoading] = useState(true);
-  const [currentTab, setCurrentTab] = useState<TabType>('hub');
+  const [currentTab, setCurrentTab] = useState<TabType>('sites'); // Default directly to Sites!
 
-  // Pack Opening Reel state
+  // Pack Opening Reel state (for quick opens)
   const [reelModalOpen, setReelModalOpen] = useState(false);
   const [activePack, setActivePack] = useState<Pack | null>(null);
   const [openedItem, setOpenedItem] = useState<DomainItem | null>(null);
@@ -53,25 +53,24 @@ export function App() {
     [initData]
   );
 
-  // Handle Pack Opening
-  const handleOpenPack = async (pack: Pack) => {
-    if (!profile) return;
+  // Handle Pack Opening (returns DomainItem for in-card animation in SitesView)
+  const handleOpenPack = async (pack: Pack): Promise<DomainItem | null> => {
+    if (!profile) return null;
     if (profile.coins < pack.priceBC) {
       notificationOccurred('error');
-      alert('Недостаточно BC монет для открытия этого набора!');
-      return;
+      alert('Недостаточно BC монет для выпуска этого сайта!');
+      return null;
     }
 
     try {
       impactOccurred('medium');
       const { item, profile: updatedProfile } = await apiClient.openPack(pack.id, profile);
       setProfile(updatedProfile);
-      setActivePack(pack);
-      setOpenedItem(item);
-      setReelModalOpen(true);
+      return item;
     } catch (err: any) {
       notificationOccurred('error');
-      alert(err.message || 'Ошибка открытия набора');
+      alert(err.message || 'Ошибка регистрации сайта');
+      return null;
     }
   };
 
@@ -239,20 +238,20 @@ export function App() {
   if (loading || !profile) {
     return (
       <div className="min-h-screen bg-app-bg text-app-text flex flex-col items-center justify-center p-6 space-y-4">
-        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-sky-400 to-indigo-600 flex items-center justify-center text-2xl font-black text-white shadow-xl animate-pulse">
+        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center text-2xl font-black text-white shadow-xl animate-pulse">
           👑
         </div>
         <div className="text-sm font-bold text-app-text tracking-wide">
           DOMAIN EMPIRE
         </div>
-        <div className="text-xs text-app-muted">Загрузка реестра доменов...</div>
+        <div className="text-xs text-app-muted">Загрузка...</div>
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-app-bg text-app-text flex flex-col font-sans transition-colors duration-200">
-      {/* Sticky Header */}
+      {/* Sticky Header with Balance & Audio */}
       <Header
         profile={profile}
         soundEnabled={profile.settings.sound}
@@ -264,17 +263,23 @@ export function App() {
         {currentTab === 'hub' && (
           <HubView
             profile={profile}
-            onOpenPack={handleOpenPack}
             onSelectCard={setInspectedItem}
             onClaimDaily={handleClaimDaily}
             onNavigateTab={setCurrentTab}
           />
         )}
 
-        {currentTab === 'packs' && (
-          <PacksView
+        {/* CENTER VIEW: САЙТЫ (Directly inspired by Image 1) */}
+        {currentTab === 'sites' && (
+          <SitesView
             profile={profile}
             onOpenPack={handleOpenPack}
+            audio={audio}
+            haptics={{
+              impact: (s) => impactOccurred(s),
+              notification: (n) => notificationOccurred(n),
+              selectionChanged
+            }}
           />
         )}
 
@@ -343,7 +348,7 @@ export function App() {
         />
       )}
 
-      {/* Bottom Navigation Tab Bar */}
+      {/* Bottom Navigation Tab Bar with Сайты in the Center */}
       <Navigation
         currentTab={currentTab}
         onTabChange={(tab) => {

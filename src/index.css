@@ -126,13 +126,20 @@ body {
   animation: unique-shimmer 4s infinite linear;
 }
 
-/* Keyframes for spinning reel drum */
-@keyframes reel-blur {
-  0% { transform: translateY(0); }
-  50% { transform: translateY(-50%); }
-  100% { transform: translateY(-100%); }
+/* Keyframes for downward character cascade (flowing down) */
+@keyframes roll-cascade-down {
+  0% { transform: translateY(-50%); }
+  100% { transform: translateY(0%); }
 }
 
-.reel-spinning {
-  animation: reel-blur 0.15s infinite linear;
+.reel-cascade-down {
+  animation: roll-cascade-down 0.1s linear infinite;
 }
+
+/* Carbon card texture like Image 1 */
+.card-carbon {
+  background-color: #11141c;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+  background-size: 6px 6px;
+}
+
