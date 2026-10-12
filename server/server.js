@@ -344,6 +344,7 @@ app.post('/api/user/recycle', (req, res) => {
 
   let earnedBC = 0;
   const remainingItems = [];
+  const soldNames = [];
 
   for (const item of profile.items) {
     if (itemIds.includes(item.id)) {
@@ -352,21 +353,33 @@ app.post('/api/user/recycle', (req, res) => {
         remainingItems.push(item);
         continue;
       }
-      const val = RECYCLE_RATES[item.rarity] || 5;
+      let val = RECYCLE_RATES[item.rarity] || 5;
+      if (item.length <= 3) val += 5;
+      if (item.categories && (item.categories.includes('Mirror') || item.categories.includes('Numeric Mix'))) val += 5;
       earnedBC += val;
+      soldNames.push(item.fullName || `${item.name}.${item.zone}`);
     } else {
       remainingItems.push(item);
     }
   }
 
+  const deal = {
+    id: `AV-${Math.floor(1000 + Math.random() * 9000)}`,
+    timestamp: new Date().toISOString(),
+    itemCount: soldNames.length,
+    itemNames: soldNames,
+    totalPayoutBC: earnedBC
+  };
+
   profile.items = remainingItems;
   profile.coins += earnedBC;
+  profile.avitaDeals = [deal, ...(profile.avitaDeals || [])];
   profile.stats = profile.stats || {};
-  profile.stats.itemsRecycled = (profile.stats.itemsRecycled || 0) + itemIds.length;
+  profile.stats.itemsRecycled = (profile.stats.itemsRecycled || 0) + soldNames.length;
   profile.stats.totalBCEarned = (profile.stats.totalBCEarned || 0) + earnedBC;
 
   db.setUser(profile.id, profile);
-  res.json({ success: true, earnedBC, profile });
+  res.json({ success: true, earnedBC, profile, deal });
 });
 
 // Fallback all routes to index.html for SPA routing

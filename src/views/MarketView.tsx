@@ -2,21 +2,24 @@ import React, { useState, useEffect } from 'react';
 import { MarketListing, AuctionLot, UserProfile, DomainItem } from '../types/domain';
 import { apiClient } from '../api/client';
 import { DomainCard } from '../components/DomainCard';
+import { AvitaView } from './AvitaView';
 
 interface MarketViewProps {
   profile: UserProfile;
   onBuyListing: (listing: MarketListing) => void;
   onPlaceBid: (auctionId: string, amount: number) => void;
   onListItem: (itemId: string, priceBC: number) => void;
+  onSellToAvita?: (items: DomainItem[], totalPayoutBC: number) => void;
 }
 
 export const MarketView: React.FC<MarketViewProps> = ({
   profile,
   onBuyListing,
   onPlaceBid,
-  onListItem
+  onListItem,
+  onSellToAvita
 }) => {
-  const [activeTab, setActiveTab] = useState<'market' | 'auctions'>('market');
+  const [activeTab, setActiveTab] = useState<'market' | 'auctions' | 'avita'>('market');
   const [listings, setListings] = useState<MarketListing[]>([]);
   const [auctions, setAuctions] = useState<AuctionLot[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -65,7 +68,7 @@ export const MarketView: React.FC<MarketViewProps> = ({
               : 'text-app-muted hover:text-app-text'
           }`}
         >
-          Рынок доменов 🛒
+          Рынок 🛒
         </button>
 
         <button
@@ -76,11 +79,27 @@ export const MarketView: React.FC<MarketViewProps> = ({
               : 'text-app-muted hover:text-app-text'
           }`}
         >
-          Аукционы редких лотов 🔨
+          Аукционы 🔨
+        </button>
+
+        <button
+          onClick={() => setActiveTab('avita')}
+          className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all ${
+            activeTab === 'avita'
+              ? 'bg-app-surface-subtle text-amber-400 shadow-sm border border-app-border'
+              : 'text-app-muted hover:text-app-text'
+          }`}
+        >
+          🏪 «Авита»
         </button>
       </div>
 
-      {activeTab === 'market' ? (
+      {activeTab === 'avita' ? (
+        <AvitaView
+          profile={profile}
+          onSellToAvita={onSellToAvita || (() => {})}
+        />
+      ) : activeTab === 'market' ? (
         <div className="space-y-3">
           {/* Top Bar: Search & "List Item" Button */}
           <div className="flex items-center gap-2">

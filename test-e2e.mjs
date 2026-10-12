@@ -52,25 +52,41 @@ async function run() {
   await page.waitForTimeout(1000);
 
   // 1. Sites View Screenshot (default central tab!)
-  console.log('📸 Taking Sites (Image 1 style) screenshot...');
-  await page.screenshot({ path: 'screenshots/sites-view-main.png' });
+  console.log('📸 Taking Sites (Image 1 style) screenshot without letter boxes...');
+  await page.screenshot({ path: 'screenshots/sites-view-borderless.png' });
+
+  // Select Free pack (0 BC) so user can spin with 0 balance
+  console.log('📦 Selecting Free 0 BC pack...');
+  await page.locator('button:has-text("Бесплатный")').first().click();
+  await page.waitForTimeout(400);
 
   // 2. Click "ВЫПУСТИТЬ САЙТ" to trigger cascading roll
   console.log('🎰 Clicking launch button to test downward waterfall cascade...');
   const launchBtn = page.locator('button:has-text("ВЫПУСТИТЬ САЙТ")').first();
   if (await launchBtn.isVisible()) {
     await launchBtn.click();
-    await page.waitForTimeout(600);
-    await page.screenshot({ path: 'screenshots/sites-view-spinning.png' });
+    await page.waitForTimeout(500);
+    await page.screenshot({ path: 'screenshots/sites-view-cascade.png' });
     await page.waitForTimeout(2200);
     await page.screenshot({ path: 'screenshots/sites-view-revealed.png' });
   }
 
-  // 3. Switch to Hub
-  console.log('🏛️ Switching to minimal Hub...');
-  await page.locator('nav button:has-text("Главная")').click();
+  // 3. Switch to Inventory and then «Авита»
+  console.log('🏪 Testing «Авита» in Inventory...');
+  await page.locator('nav button:has-text("Инвентарь")').click();
   await page.waitForTimeout(600);
-  await page.screenshot({ path: 'screenshots/hub-view-minimal.png' });
+  await page.screenshot({ path: 'screenshots/inventory-with-avita-banner.png' });
+
+  await page.locator('button:has-text("🏪 «Авита»")').first().click();
+  await page.waitForTimeout(600);
+  console.log('📸 Taking «Авита» Pawnshop screenshot...');
+  await page.screenshot({ path: 'screenshots/avita-pawnshop-view.png' });
+
+  // 4. Test Market tab with «Авита»
+  console.log('⚖️ Switching to Market with «Авита»...');
+  await page.locator('nav button:has-text("Биржа")').click();
+  await page.waitForTimeout(600);
+  await page.screenshot({ path: 'screenshots/market-view.png' });
 
   console.log('✅ All tests and screenshots generated successfully!');
   await browser.close();

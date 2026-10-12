@@ -212,4 +212,14 @@ export interface UserProfile {
     fastOpen: boolean;
     lang: 'ru' | 'en';
   };
+  avitaDeals?: AvitaDeal[];
 }
+
+export interface AvitaDeal {
+  id: string;
+  timestamp: string;
+  itemCount: number;
+  itemNames: string[];
+  totalPayoutBC: number;
+}
+

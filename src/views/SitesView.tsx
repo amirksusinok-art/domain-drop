@@ -217,39 +217,43 @@ export const SitesView: React.FC<SitesViewProps> = ({
           </div>
         </div>
 
-        {/* Center: Large Spaced Domain Characters / Waterfall Cascade */}
-        <div className="my-6 text-center">
+        {/* Center: Pure Bare Typography - No boxes, no borders, no rounded letter pills */}
+        <div className="my-7 text-center">
           {isSpinning ? (
-            /* Streaming Downward Waterfall Slot Reel */
-            <div className="flex items-center justify-center gap-1.5 sm:gap-2">
-              {slotColumns.map((char, idx) => {
-                const isLocked = lockedChars[idx] !== null && lockedChars[idx] !== undefined;
-                return (
-                  <div
-                    key={idx}
-                    className={`w-9 sm:w-11 h-13 sm:h-15 rounded-xl border flex items-center justify-center font-mono font-black text-2xl transition-all overflow-hidden ${
-                      isLocked
-                        ? 'bg-app-surface border-emerald-400 text-emerald-300 scale-105 shadow-md'
-                        : 'bg-black/60 border-white/[0.08] text-app-muted'
-                    }`}
-                  >
-                    <span className={isLocked ? '' : 'reel-cascade-down'}>
-                      {isLocked ? lockedChars[idx] : char}
+            /* Streaming Downward Waterfall Slot Reel - Pure Typography */
+            <div className="flex items-center justify-center select-none py-1">
+              <div className="flex items-center font-mono font-black text-3xl sm:text-4xl tracking-widest text-white uppercase drop-shadow-md">
+                {slotColumns.map((char, idx) => {
+                  const isLocked = lockedChars[idx] !== null && lockedChars[idx] !== undefined;
+                  return (
+                    <span
+                      key={idx}
+                      className="inline-flex items-center justify-center w-6 sm:w-8 h-11 overflow-hidden"
+                    >
+                      <span
+                        className={`transition-all duration-150 ${
+                          isLocked
+                            ? 'text-white scale-105 drop-shadow-[0_0_14px_rgba(255,255,255,0.8)]'
+                            : 'text-white/60 reel-cascade-down'
+                        }`}
+                      >
+                        {isLocked ? lockedChars[idx] : char}
+                      </span>
                     </span>
-                  </div>
-                );
-              })}
-              <div className="h-13 sm:h-15 px-2 rounded-xl bg-black/60 border border-white/[0.08] flex items-center justify-center font-mono font-bold text-xs text-app-muted">
-                .{displayedZone}
+                  );
+                })}
               </div>
+              <span className="font-mono font-bold text-xl sm:text-2xl text-rose-500 uppercase tracking-wider ml-1 drop-shadow-sm">
+                .{displayedZone}
+              </span>
             </div>
           ) : (
-            /* Idle / Revealed Big Spaced Typography */
-            <div className="flex items-center justify-center gap-2 flex-wrap">
-              <span className="font-mono font-black text-2xl sm:text-3xl tracking-widest text-white uppercase drop-shadow-md">
+            /* Idle / Revealed Pure Bare Typography */
+            <div className="flex items-center justify-center select-none py-1 flex-wrap">
+              <span className="font-mono font-black text-3xl sm:text-4xl tracking-widest text-white uppercase drop-shadow-[0_2px_12px_rgba(0,0,0,0.85)]">
                 {displayedName}
               </span>
-              <span className="text-xs sm:text-sm font-mono font-bold px-2 py-0.5 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+              <span className="font-mono font-bold text-xl sm:text-2xl text-rose-500 uppercase tracking-wider ml-1.5 drop-shadow-sm">
                 .{displayedZone}
               </span>
             </div>

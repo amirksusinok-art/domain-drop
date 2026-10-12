@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { UserProfile, DomainItem, Pack, MarketListing, ThemeId } from './types/domain';
+import { UserProfile, DomainItem, Pack, MarketListing, ThemeId, AvitaDeal } from './types/domain';
 import { apiClient } from './api/client';
 import { useTelegram } from './hooks/useTelegram';
 import { useAudio } from './hooks/useAudio';
@@ -116,6 +116,49 @@ export function App() {
               ...prev.stats,
               itemsRecycled: (prev.stats?.itemsRecycled || 0) + itemIds.length,
               totalBCEarned: (prev.stats?.totalBCEarned || 0) + gained
+            }
+          };
+        });
+      }
+      audio.playClaim();
+      notificationOccurred('success');
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  // Handle Sell Items to Avita Pawnshop
+  const handleSellToAvita = async (items: DomainItem[], totalPayoutBC: number) => {
+    if (!profile || items.length === 0) return;
+    const itemIds = items.map(it => it.id);
+    const deal: AvitaDeal = {
+      id: `AV-${Math.floor(1000 + Math.random() * 9000)}`,
+      timestamp: new Date().toISOString(),
+      itemCount: items.length,
+      itemNames: items.map(it => it.fullName || `${it.name}.${it.zone}`),
+      totalPayoutBC
+    };
+
+    try {
+      impactOccurred('medium');
+      const { success, profile: updatedProfile } = await apiClient.recycleItems(profile.id, itemIds);
+      if (success && updatedProfile) {
+        setProfile({
+          ...updatedProfile,
+          avitaDeals: [deal, ...(updatedProfile.avitaDeals || [])]
+        });
+      } else {
+        updateProfile((prev) => {
+          const remaining = prev.items.filter((it) => !itemIds.includes(it.id));
+          return {
+            ...prev,
+            coins: prev.coins + totalPayoutBC,
+            items: remaining,
+            avitaDeals: [deal, ...(prev.avitaDeals || [])],
+            stats: {
+              ...prev.stats,
+              itemsRecycled: (prev.stats?.itemsRecycled || 0) + itemIds.length,
+              totalBCEarned: (prev.stats?.totalBCEarned || 0) + totalPayoutBC
             }
           };
         });
@@ -288,7 +331,9 @@ export function App() {
             profile={profile}
             onSelectCard={setInspectedItem}
             onRecycle={handleRecycle}
+            onSellToAvita={handleSellToAvita}
             onClaimAlbum={handleClaimAlbum}
+            onNavigateToSites={() => setCurrentTab('sites')}
           />
         )}
 
@@ -298,6 +343,7 @@ export function App() {
             onBuyListing={handleBuyListing}
             onPlaceBid={handlePlaceBid}
             onListItem={handleListItem}
+            onSellToAvita={handleSellToAvita}
           />
         )}
 

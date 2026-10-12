@@ -183,28 +183,32 @@ export const ReelModal: React.FC<ReelModalProps> = ({
               Генерация символов ({item.length} позиций)
             </div>
 
-            {/* Reel Character Slots */}
-            <div className="flex items-center justify-center gap-1.5 sm:gap-2 max-w-full overflow-x-auto py-2 px-1">
-              {currentDisplayChars.map((char, idx) => {
-                const isLocked = lockedChars[idx] !== null && lockedChars[idx] !== undefined;
-                return (
-                  <div
-                    key={idx}
-                    className={`w-9 sm:w-11 h-14 sm:h-16 rounded-xl flex items-center justify-center font-mono font-black text-xl sm:text-2xl transition-all duration-150 border ${
-                      isLocked
-                        ? 'bg-app-surface-subtle border-sky-400 text-sky-300 shadow-md scale-105'
-                        : 'bg-app-bg border-app-border text-app-muted'
-                    }`}
-                  >
-                    {isLocked ? lockedChars[idx] : char}
-                  </div>
-                );
-              })}
-
-              {/* Zone Pill */}
-              <div className="h-14 sm:h-16 px-2.5 rounded-xl bg-app-bg/80 border border-app-border flex items-center justify-center text-xs sm:text-sm font-mono font-bold text-app-muted">
-                .{item.zone}
+            {/* Reel Character Typography - Bare letters, no rounded border boxes */}
+            <div className="flex items-center justify-center gap-0.5 sm:gap-1 max-w-full py-4 px-2 select-none">
+              <div className="flex items-center font-mono font-black text-3xl sm:text-4xl tracking-widest uppercase">
+                {currentDisplayChars.map((char, idx) => {
+                  const isLocked = lockedChars[idx] !== null && lockedChars[idx] !== undefined;
+                  return (
+                    <span
+                      key={idx}
+                      className="inline-flex items-center justify-center w-7 sm:w-8 h-12 overflow-hidden"
+                    >
+                      <span
+                        className={`transition-all duration-150 ${
+                          isLocked
+                            ? 'text-sky-300 scale-105 drop-shadow-[0_0_12px_rgba(56,189,248,0.7)]'
+                            : 'text-app-muted/60 reel-cascade-down'
+                        }`}
+                      >
+                        {isLocked ? lockedChars[idx] : char}
+                      </span>
+                    </span>
+                  );
+                })}
               </div>
+              <span className="font-mono font-bold text-xl sm:text-2xl text-rose-400 uppercase tracking-wider ml-1.5 drop-shadow-sm">
+                .{item.zone}
+              </span>
             </div>
 
             <div className="mt-6 flex items-center gap-2 text-xs text-app-muted">

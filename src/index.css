@@ -128,12 +128,25 @@ body {
 
 /* Keyframes for downward character cascade (flowing down) */
 @keyframes roll-cascade-down {
-  0% { transform: translateY(-50%); }
-  100% { transform: translateY(0%); }
+  0% {
+    transform: translateY(-40%);
+    filter: blur(0.4px);
+    opacity: 0.75;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(40%);
+    filter: blur(0.4px);
+    opacity: 0.75;
+  }
 }
 
 .reel-cascade-down {
-  animation: roll-cascade-down 0.1s linear infinite;
+  animation: roll-cascade-down 0.08s linear infinite;
+  display: inline-block;
+  will-change: transform, filter;
 }
 
 /* Carbon card texture like Image 1 */

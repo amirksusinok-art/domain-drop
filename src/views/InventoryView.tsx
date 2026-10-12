@@ -2,21 +2,26 @@ import React, { useState } from 'react';
 import { DomainItem, UserProfile, Rarity } from '../types/domain';
 import { DomainCard } from '../components/DomainCard';
 import { ALBUMS } from '../data/albums';
+import { AvitaView } from './AvitaView';
 
 interface InventoryViewProps {
   profile: UserProfile;
   onSelectCard: (item: DomainItem) => void;
   onRecycle: (itemIds: string[]) => void;
+  onSellToAvita?: (items: DomainItem[], totalPayoutBC: number) => void;
   onClaimAlbum: (albumId: string) => void;
+  onNavigateToSites?: () => void;
 }
 
 export const InventoryView: React.FC<InventoryViewProps> = ({
   profile,
   onSelectCard,
   onRecycle,
-  onClaimAlbum
+  onSellToAvita,
+  onClaimAlbum,
+  onNavigateToSites
 }) => {
-  const [activeTab, setActiveTab] = useState<'items' | 'albums'>('items');
+  const [activeTab, setActiveTab] = useState<'items' | 'avita' | 'albums'>('items');
   const [lengthFilter, setLengthFilter] = useState<'all' | '1-3' | '4-5' | '6-8'>('all');
   const [rarityFilter, setRarityFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -68,7 +73,7 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
 
   return (
     <div className="space-y-4 pb-28">
-      {/* Tab Switcher */}
+      {/* 3-Way Tab Switcher */}
       <div className="flex rounded-2xl bg-app-surface p-1 border border-app-border">
         <button
           onClick={() => setActiveTab('items')}
@@ -79,6 +84,17 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
           }`}
         >
           Инвентарь ({profile.items?.length || 0})
+        </button>
+
+        <button
+          onClick={() => setActiveTab('avita')}
+          className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all ${
+            activeTab === 'avita'
+              ? 'bg-app-surface-subtle text-amber-400 shadow-sm border border-app-border'
+              : 'text-app-muted hover:text-app-text'
+          }`}
+        >
+          🏪 «Авита»
         </button>
 
         <button
@@ -93,8 +109,38 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
         </button>
       </div>
 
-      {activeTab === 'items' ? (
+      {activeTab === 'avita' ? (
+        <AvitaView
+          profile={profile}
+          onSellToAvita={(items, totalPayout) => {
+            if (onSellToAvita) {
+              onSellToAvita(items, totalPayout);
+            } else {
+              onRecycle(items.map(it => it.id));
+            }
+          }}
+          onNavigateToSites={onNavigateToSites}
+          onSelectCard={onSelectCard}
+        />
+      ) : activeTab === 'items' ? (
         <div className="space-y-3">
+          {/* Quick Avita Promo Banner */}
+          <button
+            onClick={() => setActiveTab('avita')}
+            className="w-full p-2.5 rounded-2xl bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-transparent border border-amber-500/30 flex items-center justify-between hover:border-amber-500/50 transition-all text-left"
+          >
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-base">
+                🏪
+              </div>
+              <div>
+                <div className="text-xs font-bold text-amber-400">Скупщик «Авита» открыт</div>
+                <div className="text-[10px] text-app-muted">Мгновенный выкуп сайтов за монеты BC</div>
+              </div>
+            </div>
+            <span className="text-xs text-amber-400 font-bold pr-1">→</span>
+          </button>
+
           {/* Top Controls: Search & Recycle Button */}
           <div className="flex items-center gap-2">
             <div className="relative flex-1">
